@@ -136,7 +136,7 @@ export const PlexJoinItemSchema = z.object({
 
 export type PlexJoinItem = z.infer<typeof PlexJoinItemSchema>;
 
-const neverDirectory = z.object({ directory: z.never().optional() });
+const neverDirectory = z.object({ directory: z.unknown().optional() });
 
 export const PlexMovieSchema = z
   .object({
@@ -144,18 +144,18 @@ export const PlexMovieSchema = z
     key: z.string(),
     guid: z.string(),
     editionTitle: z.string(),
-    studio: z.string(),
+    studio: z.string().optional(),
     type: z.literal('movie'),
     title: z.string(),
     titleSort: z.string(),
-    contentRating: z.string(),
-    summary: z.string(),
+    contentRating: z.string().optional(),
+    summary: z.string().optional(),
     rating: z.number(),
-    audienceRating: z.number(),
-    year: z.number(),
-    tagline: z.string(),
+    audienceRating: z.number().optional(),
+    year: z.number().optional(),
+    tagline: z.string().optional(),
     thumb: z.string(),
-    art: z.string(),
+    art: z.string().optional(),
     duration: z.number(),
     originallyAvailableAt: z.string(),
     addedAt: z.number(),
@@ -312,7 +312,7 @@ export const PlexEpisodeSchema = z
     parentThumb: z.string().optional(),
     parentTitle: z.string(),
     ratingKey: z.string(),
-    summary: z.string().default(''),
+    summary: z.string().optional(),
     thumb: z.string(),
     title: z.string(),
     titleSort: z.string().optional(),

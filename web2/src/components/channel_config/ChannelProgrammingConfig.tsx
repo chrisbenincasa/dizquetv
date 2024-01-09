@@ -9,10 +9,8 @@ import {
   ListItemText,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { isPlexMovie } from 'dizquetv-types/plex';
 import { useState } from 'react';
 import { setChannelStartTime } from '../../store/channelEditor/actions.ts';
-import { isEphemeralProgram } from '../../store/channelEditor/store.ts';
 import useStore from '../../store/index.ts';
 import ProgrammingSelector from './ProgrammingSelector.tsx';
 
@@ -24,35 +22,64 @@ export function ChannelProgrammingConfig() {
   const renderPrograms = () => {
     return programList.map((p) => {
       const startTime = dayjs(p.start).toString();
+      let title: string;
 
-      if (isEphemeralProgram(p)) {
-        let itemTitle: string;
-        if (isPlexMovie(p.originalProgram)) {
-          itemTitle = p.originalProgram.title;
-        } else {
-          itemTitle = `${p.originalProgram.grandparentTitle} - ${p.originalProgram.title}`;
-        }
-        const title = `${startTime} ${itemTitle}`;
-        return (
-          <ListItem key={p.start}>
-            <ListItemText primary={title} sx={{ fontStyle: 'italic' }} />
-          </ListItem>
-        );
-      } else {
-        // const title = `${p.title}`
-        let title: string = p.title;
-        if (p.type === 'flex') {
+      switch (p.type) {
+        case 'custom':
+          title = 'custom...';
+          break;
+        case 'redirect':
+          title = 'redirect...';
+          break;
+        case 'flex':
           title = 'Flex';
-        }
-
-        title = `${startTime} ${title}`;
-
-        return (
-          <ListItem key={p.start}>
-            <ListItemText primary={title} />
-          </ListItem>
-        );
+          break;
+        case 'content':
+          if (p.episodeTitle) {
+            title = `${p.title} - ${p.episodeTitle}`;
+          } else {
+            title = p.title;
+          }
+          break;
       }
+
+      // if (isEphemeralProgram(p)) {
+      //   let itemTitle: string;
+      //   if (isPlexMovie(p.originalProgram)) {
+      //     itemTitle = p.originalProgram.title;
+      //   } else {
+      //     itemTitle = `${p.originalProgram.grandparentTitle} - ${p.originalProgram.title}`;
+      //   }
+      //   const title = `${startTime} ${itemTitle}`;
+      //   return (
+
+      //   );
+      // } else {
+      //   // const title = `${p.title}`
+      //   let title: string = p.title;
+      //   if (p.type === 'flex') {
+      //     title = 'Flex';
+      //   }
+
+      //   title = `${startTime} ${title}`;
+
+      //   return (
+      //     <ListItem key={p.start}>
+      //       <ListItemText primary={title} />
+      //     </ListItem>
+      //   );
+      // }
+
+      title = `${startTime} ${title}`;
+
+      return (
+        <ListItem key={p.start}>
+          <ListItemText
+            primary={title}
+            sx={{ fontStyle: p.persisted ? 'normal' : 'italic' }}
+          />
+        </ListItem>
+      );
     });
   };
 
@@ -60,7 +87,7 @@ export function ChannelProgrammingConfig() {
     setChannelStartTime(dayjs(value).unix());
   };
 
-  const startTime = channel ? dayjs(channel.startTime * 1000) : dayjs();
+  const startTime = channel ? dayjs(channel.startTime) : dayjs();
   const endTime = startTime.add(channel?.duration ?? 0, 'milliseconds');
 
   return (

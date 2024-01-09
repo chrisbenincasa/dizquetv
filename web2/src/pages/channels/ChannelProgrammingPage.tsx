@@ -1,27 +1,27 @@
 import { Box, Button, Paper, Typography } from '@mui/material';
-import { ChannelProgrammingConfig } from '../../components/channel_config/ChannelProgrammingConfig.tsx';
-import { usePreloadedData } from '../../hooks/preloadedDataHook.ts';
-import { editProgrammingLoader } from './loaders.ts';
-import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { WorkingProgram } from '../../store/channelEditor/store.ts';
+import { TvGuideProgram } from 'dizquetv-types';
+import { Link } from 'react-router-dom';
+import { ChannelProgrammingConfig } from '../../components/channel_config/ChannelProgrammingConfig.tsx';
 import { apiClient } from '../../external/api.ts';
+import { usePreloadedData } from '../../hooks/preloadedDataHook.ts';
 import useStore from '../../store/index.ts';
-import z from 'zod';
-import { WorkingProgramSchema } from 'dizquetv-types/schemas';
+import { editProgrammingLoader } from './loaders.ts';
 
 export default function ChannelProgrammingPage() {
   const { channel } = usePreloadedData(editProgrammingLoader);
   const newLineup = useStore((s) => s.channelEditor.programList);
 
+  // TODO we need to update the channel start time too
   const updateLineupMutation = useMutation({
     mutationKey: ['channels', channel.number, 'lineup'],
-    mutationFn: (newLineup: WorkingProgram[]) => {
-      console.log(newLineup);
-      z.array(WorkingProgramSchema).parse(newLineup);
+    mutationFn: (newLineup: TvGuideProgram[]) => {
       return apiClient.post('/api/v2/channels/:number/lineup', newLineup, {
         params: { number: channel.number },
       });
+    },
+    onSuccess: (data) => {
+      data;
     },
   });
 

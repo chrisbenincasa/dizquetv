@@ -152,7 +152,7 @@ async function persistProgram(program: Program) {
     async (em) => {
       if (['movie', 'episode', 'track'].includes(program.type ?? '')) {
         const dbProgram = new ProgramEntity();
-        dbProgram.duration = dayjs.duration({
+        dbProgram.durationObj = dayjs.duration({
           milliseconds: program.duration,
         });
         dbProgram.sourceType = ProgramSourceType.PLEX;
@@ -371,7 +371,7 @@ async function migrateChannels() {
         position: parsed['iconPosition'] as string,
         width: parsed['iconWidth'] as number,
       },
-      startTime: new Date(parsed['startTime'] as string).getTime(),
+      startTime: dayjs(parsed['startTime'] as string).unix() * 1000,
       name: parsed['name'] as string,
       offline: {
         picture: parsed['offlinePicture'] as string,

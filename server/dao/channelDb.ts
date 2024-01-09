@@ -6,10 +6,9 @@ import { JSONPreset } from 'lowdb/node';
 import { join } from 'path';
 import { globalOptions } from '../globals.js';
 import { Nullable } from '../types.js';
-import { getEm, initOrm } from './dataSource.js';
+import { getEm } from './dataSource.js';
 import { Lineup } from './derived_types/Lineup.js';
 import { Channel } from './entities/Channel.js';
-import { Test } from './entities/Test.js';
 
 export class ChannelDB {
   private fileDbCache: Record<number, Low<Lineup>> = {};
@@ -54,10 +53,9 @@ export class ChannelDB {
   }
 
   async getAllChannelNumbers() {
-    const test = await getEm().findAll(Test, {
-      fields: ['id'],
-      // populate: [''],
-      // orderBy: { number: QueryOrder.DESC },
+    const channels = await getEm().findAll(Channel, {
+      fields: ['number'],
+      orderBy: { number: QueryOrder.DESC },
     });
     return channels.map((channel) => channel.number);
   }
@@ -75,6 +73,12 @@ export class ChannelDB {
   async loadLineup(channelNumber: number) {
     const db = await this.getFileDb(channelNumber);
     return db.data;
+  }
+
+  async saveLineup(channelNumber: number, lineup: Lineup) {
+    const db = await this.getFileDb(channelNumber);
+    db.data = lineup;
+    return await db.write();
   }
 
   private async createLineup(channelNumber: number) {

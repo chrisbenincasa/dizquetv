@@ -29,12 +29,16 @@ export class Program extends BaseEntity {
   originalAirDate?: string;
 
   @Property({ type: DurationType })
-  duration!: Duration;
+  duration!: number;
 
   // Used for serializing (and type safety)
   @Property({ persist: false, type: 'int' })
   get durationMs(): number {
-    return this.duration.asMilliseconds();
+    return this.duration;
+  }
+
+  set durationObj(duration: Duration) {
+    this.duration = duration.asMilliseconds();
   }
 
   @Property({ nullable: true })
@@ -129,6 +133,10 @@ export class Program extends BaseEntity {
 
   toDTO(): ProgramDTO {
     return programDaoToDto(serialize(this as Program, { skipNull: true }));
+  }
+
+  uniqueId(): string {
+    return `${this.sourceType}_${this.externalSourceId}_${this.externalKey}`;
   }
 }
 

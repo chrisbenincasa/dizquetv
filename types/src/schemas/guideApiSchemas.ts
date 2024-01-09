@@ -1,27 +1,72 @@
 import z from 'zod';
-import { ChannelIconSchema } from './channelSchema.js';
-import { ProgramTypeSchema } from './programmingSchema.js';
 import { PlexEpisodeSchema, PlexMovieSchema } from '../plex/index.js';
+import { ChannelIconSchema } from './channelSchema.js';
 
-export const TvGuideProgramSubtitleSchema = z.object({
-  season: z.number().optional(),
-  episode: z.number().optional(),
-  title: z.string().optional(),
-});
+export const ExternalSourceTypeSchema = z.enum(['plex']);
 
-export const TvGuideProgramSchema = z.object({
+const BaseGuideProgramSchema = z.object({
   start: z.number(),
   stop: z.number(),
+  persisted: z.boolean(),
+  duration: z.number(),
+});
+
+export const FlexGuideProgramSchema = BaseGuideProgramSchema.extend({
+  type: z.literal('flex'),
+});
+
+export const RedirectGuideProgramSchema = BaseGuideProgramSchema.extend({
+  type: z.literal('redirect'),
+  channel: z.number(),
+});
+
+export const ContentGuideProgramSchema = BaseGuideProgramSchema.extend({
+  type: z.literal('content'),
+  subtype: z.union([
+    z.literal('movie'),
+    z.literal('episode'),
+    z.literal('track'),
+  ]),
+  id: z.string().optional(), // If persisted
+  // Meta
   summary: z.string().optional(),
   date: z.string().optional(),
   rating: z.string().optional(),
   icon: z.string().optional(),
-  title: z.string(),
-  sub: TvGuideProgramSubtitleSchema.optional(),
-  programDuration: z.number(),
-  type: ProgramTypeSchema,
-  persisted: z.literal(true),
+  title: z.string(), // If an episode, this is the show title
+  episodeTitle: z.string().optional(),
+  seasonNumber: z.number().optional(),
+  episodeNumber: z.number().optional(),
+  // TODO: Include track
+  originalProgram: z
+    .discriminatedUnion('type', [PlexEpisodeSchema, PlexMovieSchema])
+    .optional(),
+  externalSourceType: ExternalSourceTypeSchema.optional(),
+  externalSourceName: z.string().optional(),
 });
+// Should be able to do this once we have https://github.com/colinhacks/zod/issues/2106
+// .refine(
+//   (val) =>
+//     (!val.externalSourceName && !val.externalSourceType) ||
+//     (val.externalSourceName && val.externalSourceType),
+//   {
+//     message:
+//       'Must define neither externalSourceName / externalSourceType, or both.',
+//   },
+// );
+
+export const CustomGuideProgramSchema = BaseGuideProgramSchema.extend({
+  type: z.literal('custom'),
+  id: z.string(),
+  program: ContentGuideProgramSchema.optional(),
+});
+
+export const TvGuideProgramSchema = z.discriminatedUnion('type', [
+  ContentGuideProgramSchema,
+  CustomGuideProgramSchema,
+  RedirectGuideProgramSchema,
+  FlexGuideProgramSchema,
+]);
 
 export const ChannelLineupSchema = z.object({
   icon: ChannelIconSchema.optional(),
@@ -29,24 +74,3 @@ export const ChannelLineupSchema = z.object({
   number: z.number().optional(),
   programs: z.array(TvGuideProgramSchema),
 });
-
-// Represents a program that may or may not have been
-// persisted in the database yet. This is typically a program
-// that has been added to a Channel in "edit" mode and hasn't
-// been saved as part of the Channel's programs, yet.
-export const EphemeralProgramSchema = z.object({
-  persisted: z.literal(false),
-  type: ProgramTypeSchema,
-  originalProgram: z
-    .discriminatedUnion('type', [PlexEpisodeSchema, PlexMovieSchema])
-    .optional(),
-  externalSourceName: z.string().optional(), // e.g. Plex server name
-  start: z.number(),
-  stop: z.number(),
-  programDuration: z.number(),
-});
-
-export const WorkingProgramSchema = z.discriminatedUnion('persisted', [
-  TvGuideProgramSchema,
-  EphemeralProgramSchema,
-]);
