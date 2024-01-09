@@ -18,7 +18,7 @@ export const TvGuideProgramSchema = z.object({
   icon: z.string().optional(),
   title: z.string(),
   sub: TvGuideProgramSubtitleSchema.optional(),
-  programDuration: z.number(), //.optional(),
+  programDuration: z.number(),
   type: ProgramTypeSchema,
   persisted: z.literal(true),
 });
@@ -36,10 +36,10 @@ export const ChannelLineupSchema = z.object({
 // been saved as part of the Channel's programs, yet.
 export const EphemeralProgramSchema = z.object({
   persisted: z.literal(false),
-  originalProgram: z.discriminatedUnion('type', [
-    PlexEpisodeSchema,
-    PlexMovieSchema,
-  ]),
+  type: ProgramTypeSchema,
+  originalProgram: z
+    .discriminatedUnion('type', [PlexEpisodeSchema, PlexMovieSchema])
+    .optional(),
   externalSourceName: z.string().optional(), // e.g. Plex server name
   start: z.number(),
   stop: z.number(),

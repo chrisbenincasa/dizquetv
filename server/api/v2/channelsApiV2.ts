@@ -14,6 +14,7 @@ import createLogger from '../../logger.js';
 import { RouterPluginAsyncCallback } from '../../types/serverType.js';
 import { attempt } from '../../util.js';
 import { programMinter } from '../../util/programMinter.js';
+import { Program } from '../../dao/entities/Program.js';
 
 const logger = createLogger(import.meta);
 
@@ -234,14 +235,25 @@ export const channelsApiV2: RouterPluginAsyncCallback = async (fastify) => {
       const programsWithIndex = zipWithIndex(req.body);
       console.log(programsWithIndex);
       const nonPersisted = filter(req.body, isEphemeralProgram);
-      const minter = programMinter(getEm());
+      const em = getEm();
+      const minter = programMinter(em);
 
       const programsToPersist = filter(
         nonPersisted,
-        (p) => !isNil(p.externalSourceName),
-      ).map((p) => minter(p.externalSourceName!, p.originalProgram));
+        (p) =>
+          !isNil(p.externalSourceName) &&
+          !isNil(p.originalProgram) &&
+          ['movie', 'episode'].includes(p.type),
+      ).map((p) => minter(p.externalSourceName!, p.originalProgram!));
 
-      console.log(programsToPersist);
+      const updated = await em.upsertMany(Program, programsToPersist, {
+        batchSize: 10,
+        onConflictAction: 'merge',
+        onConflictFields: ['sourceType', 'externalSourceId', 'externalKey'],
+        onConflictExcludeFields: ['uuid'],
+      });
+
+      console.log(updated, programsToPersist);
       return res.status(200).send();
     },
   );

@@ -45,7 +45,7 @@ function mintEpisodeProgram(
   return em.create(Program, {
     sourceType: ProgramSourceType.PLEX,
     originalAirDate: plexEpisode.originallyAvailableAt,
-    durationMs: plexEpisode.duration,
+    duration: plexEpisode.duration,
     filePath: file?.file,
     externalSourceId: serverName,
     externalKey: plexEpisode.key,

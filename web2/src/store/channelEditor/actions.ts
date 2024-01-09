@@ -68,6 +68,7 @@ export const addPlexMediaToCurrentChannel = (
               originalProgram: program,
               programDuration: program.duration,
               externalSourceName: program.serverName,
+              type: 'episode',
             };
           } else {
             ephemeralProgram = {
@@ -75,6 +76,7 @@ export const addPlexMediaToCurrentChannel = (
               originalProgram: program,
               programDuration: program.duration,
               externalSourceName: program.serverName,
+              type: 'movie',
             };
           }
 

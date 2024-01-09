@@ -6,9 +6,10 @@ import { JSONPreset } from 'lowdb/node';
 import { join } from 'path';
 import { globalOptions } from '../globals.js';
 import { Nullable } from '../types.js';
-import { getEm } from './dataSource.js';
+import { getEm, initOrm } from './dataSource.js';
 import { Lineup } from './derived_types/Lineup.js';
 import { Channel } from './entities/Channel.js';
+import { Test } from './entities/Test.js';
 
 export class ChannelDB {
   private fileDbCache: Record<number, Low<Lineup>> = {};
@@ -53,9 +54,11 @@ export class ChannelDB {
   }
 
   async getAllChannelNumbers() {
-    const channels = await getEm()
-      .repo(Channel)
-      .findAll({ fields: ['number'], orderBy: { number: QueryOrder.DESC } });
+    const test = await getEm().findAll(Test, {
+      fields: ['id'],
+      // populate: [''],
+      // orderBy: { number: QueryOrder.DESC },
+    });
     return channels.map((channel) => channel.number);
   }
 
