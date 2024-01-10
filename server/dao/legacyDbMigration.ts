@@ -448,6 +448,7 @@ async function migrateChannels() {
       });
     } else {
       channelEntity = em.create(ChannelEntity, {
+        duration: channel.duration,
         disableFillerOverlay: channel.disableFillerOverlay,
         groupTitle: channel.groupTitle,
         icon: channel.icon,
@@ -461,7 +462,6 @@ async function migrateChannels() {
       });
     }
 
-    channelEntity.duration = dayjs.duration({ milliseconds: channel.duration });
     channelEntity.guideMinimumDuration = dayjs.duration({
       seconds: channel.guideMinimumDurationSeconds,
     });

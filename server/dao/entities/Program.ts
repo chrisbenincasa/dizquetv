@@ -11,7 +11,6 @@ import {
 } from '@mikro-orm/core';
 import type { Duration } from 'dayjs/plugin/duration.js';
 import { Program as ProgramDTO } from 'dizquetv-types';
-import { DurationType } from '../custom_types/DurationType.js';
 import { BaseEntity } from './BaseEntity.js';
 import { Channel } from './Channel.js';
 import { CustomShow } from './CustomShow.js';
@@ -28,14 +27,8 @@ export class Program extends BaseEntity {
   @Property({ nullable: true })
   originalAirDate?: string;
 
-  @Property({ type: DurationType })
+  @Property()
   duration!: number;
-
-  // Used for serializing (and type safety)
-  @Property({ persist: false, type: 'int' })
-  get durationMs(): number {
-    return this.duration;
-  }
 
   set durationObj(duration: Duration) {
     this.duration = duration.asMilliseconds();
@@ -143,7 +136,7 @@ export class Program extends BaseEntity {
 export function programDaoToDto(program: EntityDTO<Program>): ProgramDTO {
   return {
     date: program.originalAirDate,
-    duration: program.durationMs,
+    duration: program.duration,
     episode: program.episode,
     episodeIcon: program.episodeIcon,
     file: program.filePath,

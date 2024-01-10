@@ -20,8 +20,10 @@ export function ChannelProgrammingConfig() {
   const programList = useStore((s) => s.channelEditor.programList);
 
   const renderPrograms = () => {
+    let lastStart = channel!.startTime;
     return programList.map((p) => {
-      const startTime = dayjs(p.start).toString();
+      const startTime = dayjs(lastStart).toString();
+      lastStart += p.duration;
       let title: string;
 
       switch (p.type) {
@@ -43,37 +45,10 @@ export function ChannelProgrammingConfig() {
           break;
       }
 
-      // if (isEphemeralProgram(p)) {
-      //   let itemTitle: string;
-      //   if (isPlexMovie(p.originalProgram)) {
-      //     itemTitle = p.originalProgram.title;
-      //   } else {
-      //     itemTitle = `${p.originalProgram.grandparentTitle} - ${p.originalProgram.title}`;
-      //   }
-      //   const title = `${startTime} ${itemTitle}`;
-      //   return (
-
-      //   );
-      // } else {
-      //   // const title = `${p.title}`
-      //   let title: string = p.title;
-      //   if (p.type === 'flex') {
-      //     title = 'Flex';
-      //   }
-
-      //   title = `${startTime} ${title}`;
-
-      //   return (
-      //     <ListItem key={p.start}>
-      //       <ListItemText primary={title} />
-      //     </ListItem>
-      //   );
-      // }
-
       title = `${startTime} ${title}`;
 
       return (
-        <ListItem key={p.start}>
+        <ListItem key={startTime}>
           <ListItemText
             primary={title}
             sx={{ fontStyle: p.persisted ? 'normal' : 'italic' }}

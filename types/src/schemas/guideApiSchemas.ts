@@ -1,65 +1,31 @@
 import z from 'zod';
-import { PlexEpisodeSchema, PlexMovieSchema } from '../plex/index.js';
-import { ChannelIconSchema } from './channelSchema.js';
+import { ChannelIconSchema } from './index.js';
+import {
+  ContentProgramSchema,
+  CustomProgramSchema,
+  FlexProgramSchema,
+  RedirectProgramSchema,
+} from './programmingSchema.js';
 
-export const ExternalSourceTypeSchema = z.enum(['plex']);
-
+// Guide programs are just like regular programs, but they have a start
+// and and end time
 const BaseGuideProgramSchema = z.object({
   start: z.number(),
   stop: z.number(),
-  persisted: z.boolean(),
-  duration: z.number(),
 });
 
-export const FlexGuideProgramSchema = BaseGuideProgramSchema.extend({
-  type: z.literal('flex'),
-});
-
-export const RedirectGuideProgramSchema = BaseGuideProgramSchema.extend({
-  type: z.literal('redirect'),
-  channel: z.number(),
-});
-
-export const ContentGuideProgramSchema = BaseGuideProgramSchema.extend({
-  type: z.literal('content'),
-  subtype: z.union([
-    z.literal('movie'),
-    z.literal('episode'),
-    z.literal('track'),
-  ]),
-  id: z.string().optional(), // If persisted
-  // Meta
-  summary: z.string().optional(),
-  date: z.string().optional(),
-  rating: z.string().optional(),
-  icon: z.string().optional(),
-  title: z.string(), // If an episode, this is the show title
-  episodeTitle: z.string().optional(),
-  seasonNumber: z.number().optional(),
-  episodeNumber: z.number().optional(),
-  // TODO: Include track
-  originalProgram: z
-    .discriminatedUnion('type', [PlexEpisodeSchema, PlexMovieSchema])
-    .optional(),
-  externalSourceType: ExternalSourceTypeSchema.optional(),
-  externalSourceName: z.string().optional(),
-});
-// Should be able to do this once we have https://github.com/colinhacks/zod/issues/2106
-// .refine(
-//   (val) =>
-//     (!val.externalSourceName && !val.externalSourceType) ||
-//     (val.externalSourceName && val.externalSourceType),
-//   {
-//     message:
-//       'Must define neither externalSourceName / externalSourceType, or both.',
-//   },
-// );
-
-export const CustomGuideProgramSchema = BaseGuideProgramSchema.extend({
-  type: z.literal('custom'),
-  id: z.string(),
-  program: ContentGuideProgramSchema.optional(),
-});
+export const ContentGuideProgramSchema = ContentProgramSchema.merge(
+  BaseGuideProgramSchema,
+);
+export const CustomGuideProgramSchema = CustomProgramSchema.merge(
+  BaseGuideProgramSchema,
+);
+export const RedirectGuideProgramSchema = RedirectProgramSchema.merge(
+  BaseGuideProgramSchema,
+);
+export const FlexGuideProgramSchema = FlexProgramSchema.merge(
+  BaseGuideProgramSchema,
+);
 
 export const TvGuideProgramSchema = z.discriminatedUnion('type', [
   ContentGuideProgramSchema,

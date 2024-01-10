@@ -111,8 +111,8 @@ export const PlexMediaDescriptionSchema = z.object({
   videoResolution: z.string(),
   container: z.string(),
   videoFrameRate: z.string(),
-  audioProfile: z.string(),
-  videoProfile: z.string(),
+  audioProfile: z.string().optional(),
+  videoProfile: z.string().optional(),
   Part: z.array(
     z.object({
       id: z.number(),
@@ -120,7 +120,7 @@ export const PlexMediaDescriptionSchema = z.object({
       duration: z.number(),
       file: z.string(),
       size: z.number(),
-      audioProfile: z.string(),
+      audioProfile: z.string().optional(),
       container: z.string(),
       videoProfile: z.string(),
     }),
@@ -163,7 +163,7 @@ export const PlexMovieSchema = z
     audienceRatingImage: z.string(),
     chapterSource: z.string(),
     primaryExtraKey: z.string(),
-    ratingImage: z.string(),
+    ratingImage: z.string().optional(),
     Media: z.array(PlexMediaDescriptionSchema),
     Genre: z.array(PlexJoinItemSchema).optional(),
     Country: z.array(PlexJoinItemSchema).optional(),

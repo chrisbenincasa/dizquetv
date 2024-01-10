@@ -1,10 +1,10 @@
-import { Channel, TvGuideProgram } from 'dizquetv-types';
+import { Channel, ChannelProgram } from 'dizquetv-types';
 import { StateCreator } from 'zustand';
 
 // Represents a program listing in the editor
 export interface ChannelEditorStateInner {
   currentChannel?: Channel;
-  programList: TvGuideProgram[];
+  programList: ChannelProgram[];
   dirty: {
     programs: boolean;
   };

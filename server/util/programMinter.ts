@@ -63,5 +63,8 @@ function mintEpisodeProgram(
     title: plexEpisode.title,
     type: ProgramType.Episode,
     year: plexEpisode.year,
+    showTitle: plexEpisode.grandparentTitle,
+    showIcon: plexEpisode.grandparentThumb,
+    episode: plexEpisode.index,
   });
 }

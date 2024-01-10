@@ -219,10 +219,10 @@ export const debugRouter: FastifyPluginCallback = (fastify, _opts, done) => {
 
       const startTime = new Date();
       const duration =
-        channel!.duration.asMilliseconds() <= 0
-          ? dayjs.duration(1, 'hour')
+        channel!.duration <= 0
+          ? dayjs.duration(1, 'day').asMilliseconds()
           : channel!.duration;
-      const endTime = dayjs(startTime).add(duration).toDate();
+      const endTime = dayjs(startTime).add(duration, 'milliseconds').toDate();
 
       return res
         .status(200)

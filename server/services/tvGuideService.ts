@@ -724,6 +724,7 @@ function makeEntry(
     icon = channel.icon?.path;
     return {
       type: 'flex',
+      icon,
       ...baseItem,
     } as FlexGuideProgram;
   } else if (currentProgram.program.type === 'custom') {
@@ -763,6 +764,7 @@ function makeEntry(
     title: title,
     duration: currentProgram.program?.duration,
     type: 'content',
+    id: currentProgram.program.id,
     subtype: currentProgram.program?.type,
     persisted: true,
     seasonNumber,

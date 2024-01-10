@@ -1,4 +1,9 @@
-import { Channel, ContentGuideProgram, TvGuideProgram } from 'dizquetv-types';
+import {
+  Channel,
+  ChannelProgram,
+  ContentGuideProgram,
+  TvGuideProgram,
+} from 'dizquetv-types';
 import { isPlexEpisode } from 'dizquetv-types/plex';
 import { sumBy } from 'lodash-es';
 import useStore from '..';
@@ -15,9 +20,14 @@ export const resetChannelEditorState = () =>
     return newState;
   });
 
-export const setCurrentChannel = (channel: Channel, lineup: TvGuideProgram[]) =>
+export const setCurrentChannel = (channel: Channel, lineup: ChannelProgram[]) =>
   useStore.setState((state) => {
     state.channelEditor.currentChannel = channel;
+    state.channelEditor.programList = [...lineup];
+  });
+
+export const setCurrentLineup = (lineup: ChannelProgram[]) =>
+  useStore.setState((state) => {
     state.channelEditor.programList = [...lineup];
   });
 
@@ -63,6 +73,7 @@ export const addPlexMediaToCurrentChannel = (
         programs.map((program) => {
           let ephemeralProgram: Omit<ContentGuideProgram, 'start' | 'stop'>;
           if (isPlexEpisode(program)) {
+            const title = `${program.grandparentTitle} - ${program.parentTitle} - ${program.title}`;
             ephemeralProgram = {
               persisted: false,
               originalProgram: program,
@@ -71,7 +82,7 @@ export const addPlexMediaToCurrentChannel = (
               externalSourceType: 'plex',
               type: 'content',
               subtype: 'episode',
-              title: program.title,
+              title: title,
             };
           } else {
             ephemeralProgram = {
